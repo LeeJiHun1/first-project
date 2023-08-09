@@ -29,9 +29,33 @@
         font-family: "Noto Serif KR", serif;
       }
     </style>
-    <script></script>
+    <script>
+          $(document).ready(function () {
+        show_comment();
+      });
+
+      function save_comment() {
+        let id = $("#id").val();
+        let comment = $("#comment").val();
+        let star = $("#star").val();
+
+        let formData = new FormData();
+        formData.append("id_give", id);
+        formData.append("comment_give", comment);
+        formData.append("star_give", star);
+
+        fetch("/api/comment", { method: "POST", body: formData })
+          .then((res) => res.json())
+          .then((data) => {
+            alert(data["msg"]);
+            console.log(data);
+            window.location.reload();
+          });
+      }
+    </script>
   </head>
   <body>
+    
     <div class="mypic">
       <h1>음식점 이름</h1>
     </div>
