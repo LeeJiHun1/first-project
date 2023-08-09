@@ -35,18 +35,17 @@
         show_comment();
       });
 
-      function save_review() {
-        let id = $("#id").val();
+      function save_review(userId) {
+        let nickName = $("#id").val();
         let comment = $("#comment").val();
         let star = $("#star").val();
 
-        if (id === "" || comment === "" || star === "") {
+        if (comment === "" || star === "") {
           alert("별점과 리뷰를 남겨주세요");
           return;
         }
 
         let formData = new FormData();
-        formData.append("id_give", id);
         formData.append("comment_give", comment);
         formData.append("star_give", star);
 
@@ -56,15 +55,10 @@
         if (token) {
           fetch("/api/comment", {
             method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
             body: formData,
           })
             .then((res) => res.json())
             .then((data) => {
-              alert(data["msg"]);
-              console.log(data);
               window.location.reload();
             });
         } else {
@@ -80,10 +74,11 @@
             console.log(rows);
             $("#comment-list").empty();
             rows.forEach((item) => {
-              let id = item["id"];
               let comment = item["comment"];
               let star = item["star"];
               let star_repeat = "⭐".repeat(star);
+              let id = item["id"];
+              console.log(id);
 
               let temp_html = `<div class="card">
                               <div class="card-body">
@@ -107,10 +102,10 @@
       <h1>음식점 이름</h1>
     </div>
     <div class="mypost">
-      <div class="form-floating mb-3">
+      <!-- <div class="form-floating mb-3">
         <input type="text" class="form-control" id="id" placeholder="url" />
         <label for="floatingInput">닉네임</label>
-      </div>
+      </div> -->
       <div class="form-floating">
         <textarea
           class="form-control"

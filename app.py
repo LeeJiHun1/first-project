@@ -51,37 +51,37 @@ def register():
 
 @app.route('/detail')
 def detail():
-    return render_template('detail.html')
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        user_info = db.user.find_one({"id": payload['id']})
+        pw = hashlib.sha256(user_info['pw'].encode('utf-8')).hexdigest()
+        return render_template('detail.html', nickname=user_info["nick"], password=pw)
+    except jwt.ExpiredSignatureError:
+        return redirect(url_for("login", msg="로그인 시간이 만료되었습니다."))
+    except jwt.exceptions.DecodeError:
+        return redirect(url_for("login", msg="로그인 정보가 존재하지 않습니다."))
 
 @app.route('/api/comment', methods=["POST"])
 def comment_post():
-    token_receive = request.headers.get('Authorization')
+    token_receive = request.cookies.get('mytoken')
+    comment_receive = request.form['comment_give']
+    star_receive = request.form['star_give']
+    payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+    doc = {
+            'comment' : comment_receive,
+            'star' : star_receive,
+            'id' : payload['id']
+        }
+    db.comment.insert_one(doc)
+    
+    return jsonify({'result': 'success', 'msg': '맛있다!'})
 
-    if token_receive:
-        try:
-            id_receive = request.form['id_give']
-            comment_receive = request.form['comment_give']
-            star_receive = request.form['star_give']
-
-            doc = {
-                    'id' : id_receive,
-                    'comment' : comment_receive,
-                    'star' : star_receive
-                }
-            db.comment.insert_one(doc)
-            return jsonify({'result': 'success', 'msg': '맛있다!'})
-        except jwt.ExpiredSignatureError:
-            return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
-        except jwt.exceptions.DecodeError:
-            return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
-    else:
-        return jsonify({'result': 'fail', 'msg': '토큰이 필요합니다.'})
 
 @app.route('/api/comment', methods=["GET"])
 def comment_get():
     all_comment = list(db.comment.find({}, {'_id': False}))
     return jsonify({'result':all_comment})
-
 
 #################################
 ##  로그인을 위한 API            ##
