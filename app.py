@@ -66,7 +66,12 @@ def comment_post():
     }
 
     db.comment.insert_one(doc)
-    return jsonify({'msg': '맛있다!'})
+    return jsonify({'msg': '리뷰는 큰 힘이됩니다!'})
+
+@app.route('/api/comment', methods=["GET"])
+def comment_get():
+    all_comment = list(db.comment.find({}, {'_id': False}))
+    return jsonify({'result':all_comment})
 
 
 #################################

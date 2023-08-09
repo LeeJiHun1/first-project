@@ -52,10 +52,38 @@
             window.location.reload();
           });
       }
+      function show_comment() {
+        fetch("/api/comment")
+          .then((res) => res.json())
+          .then((data) => {
+            let rows = data["result"];
+            console.log(rows);
+            $("#comment-list").empty();
+            rows.forEach((item) => {
+              let id = item["id"];
+              let comment = item["comment"];
+              let star = item["star"];
+              let star_repeat = "⭐".repeat(star);
+
+              let temp_html = `<div class="card">
+                            <div class="card-body">
+                                <blockquote class="blockquote mb-0">
+                                    <div>
+                                        ${comment}
+                                        ${star_repeat}
+                                    </div>
+                                    <footer>${id}</footer>
+                                </blockquote>
+                            </div>
+                        </div>`;
+              $("#comment-list").append(temp_html);
+            });
+          });
+      }
     </script>
   </head>
   <body>
-    
+
     <div class="mypic">
       <h1>음식점 이름</h1>
     </div>
