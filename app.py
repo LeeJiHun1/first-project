@@ -67,11 +67,17 @@ def comment_post():
     token_receive = request.cookies.get('mytoken')
     comment_receive = request.form['comment_give']
     star_receive = request.form['star_give']
+
     payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+    userId = payload['id']
+    user = db.user.find_one({'id': userId})
+    nickName = user['nick']
+    
     doc = {
             'comment' : comment_receive,
             'star' : star_receive,
-            'id' : payload['id']
+            'id' : userId,
+            'nickName' : nickName
         }
     db.comment.insert_one(doc)
     

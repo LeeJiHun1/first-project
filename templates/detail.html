@@ -59,6 +59,7 @@
           })
             .then((res) => res.json())
             .then((data) => {
+              alert(data.msg)
               window.location.reload();
             });
         } else {
@@ -77,8 +78,8 @@
               let comment = item["comment"];
               let star = item["star"];
               let star_repeat = "⭐".repeat(star);
-              let id = item["id"];
-              console.log(id);
+              let nickName = item["nickName"];
+              console.log(item);
 
               let temp_html = `<div class="card">
                               <div class="card-body">
@@ -87,7 +88,7 @@
                                           ${comment}
                                           ${star_repeat}
                                       </div>
-                                      <footer>${id}</footer>
+                                      <footer>${nickName}</footer>
                                   </blockquote>
                               </div>
                           </div>`;
