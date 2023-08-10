@@ -4,9 +4,8 @@ app = Flask(__name__)
 import certifi
 ca=certifi.where()
 
-from pymongo import MongoClient
-client = MongoClient('mongodb+srv://sparta:test@cluster0.s6ifo6t.mongodb.net/?retryWrites=true&w=majority', tlsCAFile=ca)
-db = client.dbsparta
+client = MongoClient("mongodb+srv://sparta:test@cluster0.mcd1ews.mongodb.net/?retryWrites=true&w=majority", tlsCAFile=ca)
+db = client.dbsparta_plus_week4
 
 # JWT 토큰을 만들 때 필요한 비밀문자열입니다. 아무거나 입력해도 괜찮습니다.
 # 이 문자열은 서버만 알고있기 때문에, 내 서버에서만 토큰을 인코딩(=만들기)/디코딩(=풀기) 할 수 있습니다.
@@ -33,7 +32,7 @@ def home():
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         user_info = db.user.find_one({"id": payload['id']})
         pw = hashlib.sha256(user_info['pw'].encode('utf-8')).hexdigest()
-        return render_template('index.html', nickname=user_info["nick"], password=pw)
+        return render_template('index.html', nickname=user_info["nickname"], password=pw)
     except jwt.ExpiredSignatureError:
         return redirect(url_for("login", msg="로그인 시간이 만료되었습니다."))
     except jwt.exceptions.DecodeError:
@@ -49,24 +48,39 @@ def login():
 def register():
     return render_template('register.html')
 
-@app.route('/detail')
-def detail():
-    return render_template('detail.html')
+@app.route('/detail/<rest_id>')
+def detail(rest_id):
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        user_info = db.user.find_one({"id": payload['id']})
+        pw = hashlib.sha256(user_info['pw'].encode('utf-8')).hexdigest()
+        return render_template('detail.html', nickname=user_info["nickname"], password=pw, rest_id=rest_id)
+    except jwt.ExpiredSignatureError:
+        return redirect(url_for("login", msg="로그인 시간이 만료되었습니다."))
+    except jwt.exceptions.DecodeError:
+        return redirect(url_for("login", msg="로그인 정보가 존재하지 않습니다."))
 
 @app.route('/api/comment', methods=["POST"])
 def comment_post():
-    id_receive = request.form['id_give']
+    token_receive = request.cookies.get('mytoken')
     comment_receive = request.form['comment_give']
     star_receive = request.form['star_give']
+    num_receive = request.form['num_give']
 
+    payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+    userId = payload['id']
+    
     doc = {
-        'id' : id_receive,
-        'comment' : comment_receive,
-        'star' : star_receive
-    }
-
+            'comment' : comment_receive,
+            'star' : star_receive,
+            'id' : userId,
+            'num' : int(num_receive)
+        }
     db.comment.insert_one(doc)
-    return jsonify({'msg': '리뷰는 큰 힘이됩니다!'})
+    
+    return jsonify({'result': 'success', 'msg': '맛있다!'})
+
 
 @app.route('/api/comment', methods=["GET"])
 def comment_get():
@@ -89,9 +103,11 @@ def api_register():
 
     pw_hash = hashlib.sha256(pw_receive.encode('utf-8')).hexdigest()
 
-    db.user.insert_one({'id': id_receive, 'pw': pw_hash, 'nick': nickname_receive})
+    db.user.insert_one({'id': id_receive, 'pw': pw_hash, 'nickname': nickname_receive})
 
     return jsonify({'result': 'success'})
+
+
 
 
 # [로그인 API]
@@ -115,7 +131,7 @@ def api_login():
         # exp에는 만료시간을 넣어줍니다. 만료시간이 지나면, 시크릿키로 토큰을 풀 때 만료되었다고 에러가 납니다.
         payload = {
             'id': id_receive,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=600)
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
         # token을 줍니다.
@@ -150,6 +166,17 @@ def api_valid():
         return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
     except jwt.exceptions.DecodeError:
         return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
+    
+@app.route('/api/detail/<restid>', methods=['GET'])
+def api_detail(restid):
+    id_receive = restid
+
+    restinfo = db.restaurant.find_one({'num':int(id_receive)}, {'_id':0})
+    mentinfo = list(db.comment.find({'num':int(id_receive)}, {'_id':0}))
+    for i in range(len(mentinfo)) :
+        nickname = db.user.find_one({'id':mentinfo[i]["id"]}, {'_id':0})["nickname"]
+        mentinfo[i]["nickname"] = nickname
+    return jsonify({'result': 'success', 'restinfo':restinfo, 'mentinfo':mentinfo})
 
 
 if __name__ == '__main__':

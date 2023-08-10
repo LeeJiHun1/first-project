@@ -5,124 +5,315 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-      crossorigin="anonymous"
-    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-      crossorigin="anonymous"
-    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
 
-    <title>음식점 이름</title>
+    <title>상세 페이지</title>
 
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;500;600;700;900&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;500;600;700;900&display=swap"
+        rel="stylesheet" />
     <style>
-      * {
-        font-family: "Noto Serif KR", serif;
-      }
+        * {
+            font-family: "Noto Serif KR", serif;
+        }
     </style>
     <script>
-          $(document).ready(function () {
-        show_comment();
-      });
+        $(document).ready(function () {
+            show_restaurant();
+            show_comment();
+        });
 
-      function save_comment() {
-        let id = $("#id").val();
-        let comment = $("#comment").val();
-        let star = $("#star").val();
+        function save_review() {
+            let num = $("#num").text();
+            let comment = $("#comment").val();
+            let star = $("#star").val();
 
-        let formData = new FormData();
-        formData.append("id_give", id);
-        formData.append("comment_give", comment);
-        formData.append("star_give", star);
+            if (comment === "" || star === "") {
+                alert("별점과 리뷰를 남겨주세요");
+                return;
+            }
 
-        fetch("/api/comment", { method: "POST", body: formData })
-          .then((res) => res.json())
-          .then((data) => {
-            alert(data["msg"]);
-            console.log(data);
-            window.location.reload();
-          });
-      }
-      function show_comment() {
-        fetch("/api/comment")
-          .then((res) => res.json())
-          .then((data) => {
-            let rows = data["result"];
-            console.log(rows);
-            $("#comment-list").empty();
-            rows.forEach((item) => {
-              let id = item["id"];
-              let comment = item["comment"];
-              let star = item["star"];
-              let star_repeat = "⭐".repeat(star);
+            let formData = new FormData();
+            formData.append("comment_give", comment);
+            formData.append("star_give", star);
+            formData.append("num_give", num);
 
-              let temp_html = `<div class="card">
-                            <div class="card-body">
-                                <blockquote class="blockquote mb-0">
-                                    <div>
-                                        ${comment}
-                                        ${star_repeat}
+            const token = $.cookie("mytoken");
+
+            if (token) {
+                fetch("/api/comment", {
+                    method: "POST",
+                    body: formData,
+                })
+                    .then((res) => res.json())
+                    .then((data) => {
+                        alert(data.msg)
+                        window.location.reload();
+                    });
+            } else {
+                alert("로그인이 필요합니다.");
+            }
+        }
+
+        function show_restaurant() {
+            fetch(`/api/detail/{{rest_id}}`).then((res) => res.json()).then((data) => {
+                let rows = data['result'];
+
+                let num = data['restinfo']['num'];
+                let name = data['restinfo']['name'];
+                let region = data['restinfo']['region'];
+                let image = data['restinfo']['image'];
+                let star = data['restinfo']['star'];
+                let recommend = data['restinfo']['recommend'];
+                let comment = data['restinfo']['comment'];
+
+                let tot_star = star
+                let cnt = 1
+                let star_repeat = '⭐'.repeat(star)
+                switch (region) {
+                    case 1: region_name = '서울'
+                    case 2: region_name = '대구'
+                }
+
+                $('#restaurant-detail').empty();
+                let temp_html = `<div class="field is-horizontal">
+                                    <p id="num" style="display:none">${num}</p>
+                                    <img src="${image}" alt="">
+                                </div>
+                                <div class="field is-horizontal">
+                                    <div class="field-label is-normal">
+                                        <label class="label" for="region">음식점 지역</label>
                                     </div>
-                                    <footer>${id}</footer>
-                                </blockquote>
-                            </div>
-                        </div>`;
-              $("#comment-list").append(temp_html);
-            });
-          });
-      }
-    </script>
-  </head>
-  <body>
+                                    <div class="field-body">
+                                        <div class="field">
+                                            <div class="control">
+                                                <p id="region">${region_name}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field is-horizontal">
+                                    <div class="field-label is-normal">
+                                        <label class="label" for="name">음식점 이름</label>
+                                    </div>
+                                    <div class="field-body">
+                                        <div class="field">
+                                            <div class="control">
+                                                <p id="name">${name}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field is-horizontal">
+                                    <div class="field-label is-normal">
+                                        <label class="label" for="star">음식점 별점</label>
+                                    </div>
+                                    <div class="field-body">
+                                        <div class="field">
+                                            <div class="control">
+                                                <p id="rest_star">${star_repeat}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field is-horizontal">
+                                    <div class="field-label is-normal">
+                                        <label class="label" for="star">음식점 총별점</label>
+                                    </div>
+                                    <div class="field-body">
+                                        <div class="field">
+                                            <div class="control">
+                                                <p id="tot_star">${tot_star}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field is-horizontal">
+                                    <div class="field-label is-normal">
+                                        <label class="label" for="recommend">음식점 추천 메뉴</label>
+                                    </div>
+                                    <div class="field-body">
+                                        <div class="field">
+                                            <div class="control">
+                                                <p id="recommend">${recommend}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field is-horizontal">
+                                    <div class="field-label is-normal">
+                                        <label class="label" for="comment">코멘트</label>
+                                    </div>
+                                    <div class="field-body">
+                                        <div class="field">
+                                            <div class="control">
+                                                <p id="rest_comment">${comment}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>`
+                $('#restaurant-detail').append(temp_html);
 
-    <div class="mypic">
-      <h1>음식점 이름</h1>
+                let mentinfo = data['mentinfo'];
+                $('#comment-list').empty();
+                mentinfo.forEach((a) => {
+                    let star = a['star'];
+                    let comment = a['comment'];
+                    let nickname = a['nickname'];
+                    tot_star += star
+                    cnt++
+                    let star_repeat = '⭐'.repeat(star)
+                    let temp_html = `<div class="field is-horizontal">
+                                        <div class="field-label is-normal">
+                                            <label class="label" for="region">닉네임</label>
+                                        </div>
+                                        <div class="field-body">
+                                            <div class="field">
+                                                <div class="control">
+                                                    <p id="region">${nickname}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field is-horizontal">
+                                        <div class="field-label is-normal">
+                                            <label class="label" for="region">댓글</label>
+                                        </div>
+                                        <div class="field-body">
+                                            <div class="field">
+                                                <div class="control">
+                                                    <p id="region">${comment}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field is-horizontal">
+                                        <div class="field-label is-normal">
+                                            <label class="label" for="region">별점</label>
+                                        </div>
+                                        <div class="field-body">
+                                            <div class="field">
+                                                <div class="control">
+                                                    <p id="region">${star_repeat}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>`
+                    $('#comment-list').append(temp_html);
+                });
+                $('#tot_star').text(tot_star / cnt * 100 / 100)
+            })
+        }
+    </script>
+</head>
+
+<body>
+    <div class="section has-text-centered">
+        <h1 class="title">상세 페이지</h1>
+        <div class="container" style="width:70%" id="restaurant-detail">
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label" for="image">음식점 사진 URL</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <p id="image">11123</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label" for="region">음식점 지역</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <p id="region">서울</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label" for="name">음식점 이름</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <p id="name">음식점 이름</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label" for="star">음식점 별점</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <p id="star">4</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label" for="recommend">음식점 추천 메뉴</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <p id="recommend">참치 김밥</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label" for="comment">코멘트</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <p id="comment">이집을 말하자면.....</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="container" style="width:70%" id="comment-list">
+
+        </div>
     </div>
     <div class="mypost">
-      <div class="form-floating mb-3">
-        <input type="text" class="form-control" id="id" placeholder="url" />
-        <label for="floatingInput">닉네임</label>
-      </div>
-      <div class="form-floating">
-        <textarea
-          class="form-control"
-          placeholder="Leave a comment here"
-          id="comment"
-          style="height: 100px"
-        ></textarea>
-        <label for="floatingTextarea2">댓글</label>
-      </div>
-      <label class="input-group-text" for="inputGroupSelect01">별점</label>
-      <select class="form-select" id="star">
-        <option selected>-- 선택하기 --</option>
-        <option value="1">⭐</option>
-        <option value="2">⭐⭐</option>
-        <option value="3">⭐⭐⭐</option>
-        <option value="4">⭐⭐⭐⭐</option>
-        <option value="5">⭐⭐⭐⭐⭐</option>
-      </select>
-      <button onclick="save_comment()" type="button" class="btn btn-dark">
-        리뷰 남기기
-      </button>
-    </div>
-    <div class="mycards" id="comment-list">
-      <div class="card">
-        <div class="card-body">
-          <blockquote class="blockquote mb-0">
-            <p>새로운 앨범 너무 멋져요!</p>
-            <footer class="blockquote-footer"></footer>
-          </blockquote>
+        <div class="form-floating">
+            <textarea class="form-control" placeholder="Leave a comment here" id="comment"
+                style="height: 100px"></textarea>
+            <label for="floatingTextarea2">댓글</label>
         </div>
-      </div>
+        <label class="input-group-text" for="inputGroupSelect01">별점</label>
+        <select class="form-select" id="star">
+            <option selected></option>
+            <option value="1">⭐</option>
+            <option value="2">⭐⭐</option>
+            <option value="3">⭐⭐⭐</option>
+            <option value="4">⭐⭐⭐⭐</option>
+            <option value="5">⭐⭐⭐⭐⭐</option>
+        </select>
+        <button onclick="save_review()" type="button" class="btn btn-dark">
+            리뷰 남기기
+        </button>
     </div>
-  </body>
+</body>
+
 </html>
