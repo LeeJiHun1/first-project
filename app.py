@@ -59,6 +59,11 @@ def modify():
 def firstmodify(Num):
     return redirect(url_for('modify', num = Num))
 
+@app.route('/modify_user')
+def modify_use():
+    return render_template('modify_user.html')
+
+
 #################################
 ##  로그인을 위한 API            ##
 #################################
@@ -103,7 +108,7 @@ def api_login():
         # exp에는 만료시간을 넣어줍니다. 만료시간이 지나면, 시크릿키로 토큰을 풀 때 만료되었다고 에러가 납니다.
         payload = {
             'id': id_receive,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
         # token을 줍니다.
@@ -160,7 +165,32 @@ def restaurant_get():
     print("hello")
     return jsonify({'result' : all_restaurant})
 
+@app.route('/update_user', methods=["POST"])
+def update_user():
+    pw = request.form['pw']
+    after = request.form['after']
+    token_receive = request.cookies.get('mytoken')
 
+    try :
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        userinfo = db.user.find_one({'id': payload['id']}, {'_id': 0})
+        print(userinfo)
+
+        user_pw = userinfo['pw']
+        pw_hash = hashlib.sha256(pw.encode('utf-8')).hexdigest()
+
+        if(user_pw == pw_hash):
+            db.user.update_one({'id':payload['id']},{'$set':{'nick': after }})
+            return jsonify({'result' : "변경완료되었습니다."})
+        else:
+            return jsonify({'result' : "비밀번호 입력이 틀렸습니다."})
+        
+    except jwt.ExpiredSignatureError:
+        # 위를 실행했는데 만료시간이 지났으면 에러가 납니다.
+        return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
+    except jwt.exceptions.DecodeError:
+        return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
+    return jsonify({'result':"hello" })
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)
