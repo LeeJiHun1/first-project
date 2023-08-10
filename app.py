@@ -141,6 +141,11 @@ def modify_use():
     return render_template('modify_user.html')
 
 
+@app.route("/search")
+def search_page():
+    return render_template("search.html")
+
+
 #################################
 ##  로그인을 위한 API            ##
 #################################
@@ -291,6 +296,62 @@ def update_user():
         return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
     except jwt.exceptions.DecodeError:
         return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
+    
+
+# [게시물 등록 API]
+# 게시글을 등록하고, 토큰을 만들어 발급합니다.
+
+@app.route('/make', methods=['POST'])
+def food_save():
+    token_receive = request.cookies.get('mytoken')
+    food_receive = request.form['name']
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        food_list = list(db.restaurant.find({}, {'_id': False}))
+        count = len(food_list) + 1
+        doc = {
+            'id':payload['id'],
+            'num' :count,
+            'name' : food_receive,
+            'region' : int(request.form['region']),
+            'image' : request.form['image'],
+            'star' : int(request.form['star']), # 평균 내기 위해 숫자로
+            'recommend' : request.form['recommend'],
+            'comment' : request.form['comment'],
+        }
+        db.restaurant.insert_one(doc)
+        return jsonify({'result' : "저장완료"})
+    except jwt.ExpiredSignatureError:
+        # 위를 실행했는데 만료시간이 지났으면 에러가 납니다.
+        return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
+    except jwt.exceptions.DecodeError:
+        return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
+
+@app.route('/make')
+def save():
+    return render_template('post.html')
+
+
+# [게시물 검색 API]
+# 등록된 게시글을 검색합니다.
+
+@app.route('/search2/<keyword>', methods=["GET"])
+def food_search(keyword):
+    # keyword = request.form['keyword']
+    matching_foods = list(db.restaurant.find({'name': {'$regex': keyword}}))
+    print(keyword)
+    print(matching_foods)
+    # print(keyword)
+
+    if matching_foods:
+        restaurant = [{'name': food['name'], 'region': food['region'], 
+                       'recommend': food['recommend'], 'comment': food['comment']} 
+                       for food in matching_foods]
+    else:
+        restaurant = 0
+    
+    return jsonify({'result':restaurant})
+
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)

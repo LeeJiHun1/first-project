@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Webpage Title -->
+        <title>save!</title>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <!-- Bulma CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+        <!-- JS -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+        <script>
+            function save(){
+                let formData = new FormData();
+                let name = $('#name').val()
+                let region = $('#region').val()
+                let image = $('#image').val()
+                let star = $('#star').val()
+                let recommend = $('#recommend').val()
+                let comment = $('#comment').val()
+                formData.append('name', name);
+                formData.append('image', image);
+                formData.append('region', region);
+                formData.append('star', star);
+                formData.append('recommend', recommend);
+                formData.append('comment', comment);
+                fetch('/make', {method: "POST",body: formData,}).then((response) => response.json()).then((data) => {
+                        alert(data["msg"]);
+                        window.location.replace("{{ url_for('home') }}");
+                 });
+            }
+        </script>
+    </head>
+    <body>
+        <div class="section has-text-centered">
+            <h1 class="title">음식점 저장화면</h1>
+            <div class="container" style="width:60%">
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label" for="userid">음식점 이름</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <input type="text" class="input" id="name" aria-describedby="emailHelp">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label" for="userpw">음식점 지역</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <select name="text" id="region">  
+                                    <!-- 카테고리 지역선택 -->
+                                    <option value="1">서울</option>
+                                    <option value="2">인천</option>
+                                    <option value="3">경기</option>
+                                    <option value="4">강원</option>
+                                    <option value="5">충북</option>
+                                    <option value="6">충남</option>
+                                    <option value="7">대전</option>
+                                    <option value="8">전북</option>
+                                    <option value="9">전남</option>
+                                    <option value="10">광주</option>
+                                    <option value="11">경북</option>
+                                    <option value="12">대구</option>
+                                    <option value="13">부산</option>
+                                    <option value="14">울산</option>
+                                    <option value="15">경남</option>
+                                    <option value="16">제주</option>
+                                    <option value="17">울릉</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label" for="usernick">음식점 사진 URL</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <input type="text" class="input" id="image">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label" for="usernick">음식점 맛 별점</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <select name="number" id="star">
+                                    <option selected>별점선택</option>
+                                    <option value="1">⭐</option>
+                                    <option value="2">⭐⭐</option>
+                                    <option value="3">⭐⭐⭐</option>
+                                    <option value="4">⭐⭐⭐⭐</option>
+                                    <option value="5">⭐⭐⭐⭐⭐</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label" for="usernick">음식점 추천 메뉴</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <input type="text" class="input" id="recommend" >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label" for="usernick">코멘트</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <input type="text" class="input" id="comment">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="button is-primary" onclick="save()">저장하기</button>
+            </div>
+        </div>
+    </body>
+</html>
