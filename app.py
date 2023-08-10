@@ -35,7 +35,7 @@ def home():
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         user_info = db.user.find_one({"id": payload['id']})
         pw = hashlib.sha256(user_info['pw'].encode('utf-8')).hexdigest()
-        return render_template('index.html', nickname=user_info["nick"], password=pw)
+        return render_template('index.html', nickname=user_info["nickname"], password=pw)
     except jwt.ExpiredSignatureError:
         return redirect(url_for("login", msg="로그인 시간이 만료되었습니다."))
     except jwt.exceptions.DecodeError:
@@ -58,7 +58,7 @@ def detail(rest_id):
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         user_info = db.user.find_one({"id": payload['id']})
         pw = hashlib.sha256(user_info['pw'].encode('utf-8')).hexdigest()
-        return render_template('detail.html', nickname=user_info["nick"], password=pw, rest_id=rest_id)
+        return render_template('detail.html', nickname=user_info["nickname"], password=pw, rest_id=rest_id)
     except jwt.ExpiredSignatureError:
         return redirect(url_for("login", msg="로그인 시간이 만료되었습니다."))
     except jwt.exceptions.DecodeError:
@@ -69,17 +69,16 @@ def comment_post():
     token_receive = request.cookies.get('mytoken')
     comment_receive = request.form['comment_give']
     star_receive = request.form['star_give']
+    num_receive = request.form['num_give']
 
     payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
     userId = payload['id']
-    user = db.user.find_one({'id': userId})
-    nickName = user['nick']
     
     doc = {
             'comment' : comment_receive,
             'star' : star_receive,
             'id' : userId,
-            'nickName' : nickName
+            'num' : int(num_receive)
         }
     db.comment.insert_one(doc)
     
@@ -107,7 +106,7 @@ def api_register():
 
     pw_hash = hashlib.sha256(pw_receive.encode('utf-8')).hexdigest()
 
-    db.user.insert_one({'id': id_receive, 'pw': pw_hash, 'nick': nickname_receive})
+    db.user.insert_one({'id': id_receive, 'pw': pw_hash, 'nickname': nickname_receive})
 
     return jsonify({'result': 'success'})
 

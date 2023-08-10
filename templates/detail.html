@@ -30,7 +30,7 @@
         });
 
         function save_review() {
-            let nickName = $("#id").val();
+            let num = $("#num").text();
             let comment = $("#comment").val();
             let star = $("#star").val();
 
@@ -42,6 +42,7 @@
             let formData = new FormData();
             formData.append("comment_give", comment);
             formData.append("star_give", star);
+            formData.append("num_give", num);
 
             const token = $.cookie("mytoken");
 
@@ -60,40 +61,12 @@
             }
         }
 
-        function show_comment() {
-            fetch("/api/comment")
-                .then((res) => res.json())
-                .then((data) => {
-                    let rows = data["result"];
-                    console.log(rows);
-                    $("#comment-list").empty();
-                    rows.forEach((item) => {
-                        let comment = item["comment"];
-                        let star = item["star"];
-                        let star_repeat = "⭐".repeat(star);
-                        let nickName = item["nickName"];
-                        console.log(item);
-
-                        let temp_html = `<div class="card">
-                              <div class="card-body">
-                                  <blockquote class="blockquote mb-0">
-                                      <div>
-                                          ${comment}
-                                          ${star_repeat}
-                                      </div>
-                                      <footer>${nickName}</footer>
-                                  </blockquote>
-                              </div>
-                          </div>`;
-                        $("#comment-list").append(temp_html);
-                    });
-                });
-        }
         function show_restaurant() {
             fetch(`/api/detail/{{rest_id}}`).then((res) => res.json()).then((data) => {
                 let rows = data['result'];
 
-                var name = data['restinfo']['name'];
+                let num = data['restinfo']['num'];
+                let name = data['restinfo']['name'];
                 let region = data['restinfo']['region'];
                 let image = data['restinfo']['image'];
                 let star = data['restinfo']['star'];
@@ -110,6 +83,7 @@
 
                 $('#restaurant-detail').empty();
                 let temp_html = `<div class="field is-horizontal">
+                                    <p id="num" style="display:none">${num}</p>
                                     <img src="${image}" alt="">
                                 </div>
                                 <div class="field is-horizontal">
@@ -143,7 +117,7 @@
                                     <div class="field-body">
                                         <div class="field">
                                             <div class="control">
-                                                <p id="star">${star_repeat}</p>
+                                                <p id="rest_star">${star_repeat}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -179,7 +153,7 @@
                                     <div class="field-body">
                                         <div class="field">
                                             <div class="control">
-                                                <p id="comment">${comment}</p>
+                                                <p id="rest_comment">${comment}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -340,16 +314,6 @@
         <button onclick="save_review()" type="button" class="btn btn-dark">
             리뷰 남기기
         </button>
-    </div>
-    <div class="mycards" id="comment-list">
-        <div class="card">
-            <div class="card-body">
-                <blockquote class="blockquote mb-0">
-                    <p>새로운 앨범 너무 멋져요!</p>
-                    <footer class="blockquote-footer"></footer>
-                </blockquote>
-            </div>
-        </div>
     </div>
 </body>
 
