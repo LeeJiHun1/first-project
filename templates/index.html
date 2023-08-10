@@ -167,31 +167,15 @@
       }
       // 로그아웃은 내가 가지고 있는 토큰만 쿠키에서 없애면 됩니다.
       function logout(){
-          $.removeCookie('mytoken');
-          alert('로그아웃!')
-          window.location.href='/login'
-        }
-      function go() {
+        $.removeCookie('mytoken');
+        alert('로그아웃!')
+        window.location.href='/login'
+      }
+      function go(){
         alert('맛집으로!')
         window.location.href = '/detail'
       }
 
-      function posting() {
-        let url = $('#url').val()
-        let name = $('#name').val()
-        let star = $('#star').val()
-
-        let formData = new FormData();
-        formData.append("url_give", url);
-        formData.append("name_give", name);
-        formData.append("star_give", star);
-
-        fetch('/main', { method: "POST", body: formData }).then((res) => res.json()).then((data) => {
-          alert(data['msg'])
-          window.location.reload()
-        })
-
-      }
     </script>
   </head>
 
