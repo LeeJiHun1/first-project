@@ -25,16 +25,18 @@
                     data: {
                         id_give: $('#userid').val(),
                         pw_give: $('#userpw').val(),
+                        pw_check: $('#pwcheck').val(),
                         nickname_give: $('#usernick').val()
                     },
                     success: function (response) {
                         if (response['result'] == 'success') {
                             alert('회원가입이 완료되었습니다.')
                             window.location.href = '/login'
-                        } else {
-                            alert(response['msg'])
+                        } else if (response['result'] == 'fail') {
+                            alert("정보 입력이 잘못되었습니다 다시 진행해주세요.")
+                            window.location.href = '/register'
                         }
-                    }
+                    } 
                 })
             }
 
@@ -65,6 +67,18 @@
                         <div class="field">
                             <div class="control">
                                 <input type="password" class="input" id="userpw" placeholder="My Password">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label" for="pwcheck">PW again</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <input type="password" class="input" id="pwcheck" placeholder="My Password again">
                             </div>
                         </div>
                     </div>
