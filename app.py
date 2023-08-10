@@ -60,21 +60,31 @@ def main_post():
 @app.route("/main", methods=["GET"])
 def main_get():
     all_restaurant = list(db.restaurant.find({},{'_id':False}))
-    for i in range(len(all_restaurant)):
-        total_star = 0
-        count = 0
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        user_info = db.user.find_one({"id": payload['id']})
+        nickname = user_info['nickname']
+        print(nickname)
+        for i in range(len(all_restaurant)):
+            total_star = 0
+            count = 0
 
-        all_comment = list(db.comment.find({'num':all_restaurant[i]['num']},{'_id':False}))
-      
-        total_star = total_star + all_restaurant[i]['star']
-        count+= 1
+            all_comment = list(db.comment.find({'num':all_restaurant[i]['num']},{'_id':False}))
         
-        for j in range(len(all_comment)):
-            total_star = total_star + int(all_comment[j]['star'])
+            total_star = total_star + all_restaurant[i]['star']
             count+= 1
-        all_restaurant[i]['total_star'] = round(total_star/count,1)
-        
-    return jsonify({'result':all_restaurant})
+            
+            for j in range(len(all_comment)):
+                total_star = total_star + int(all_comment[j]['star'])
+                count+= 1
+            all_restaurant[i]['total_star'] = round(total_star/count,1)
+            
+        return jsonify({'result':all_restaurant, 'nickname':nickname})
+    except jwt.ExpiredSignatureError:
+        return redirect(url_for("login", msg="로그인 시간이 만료되었습니다."))
+    except jwt.exceptions.DecodeError:
+        return redirect(url_for("login", msg="로그인 정보가 존재하지 않습니다."))
     
 @app.route('/login')
 def login():
@@ -259,7 +269,7 @@ def update_user():
     pw = request.form['pw']
     after = request.form['after']
     token_receive = request.cookies.get('mytoken')
-
+    print(after)
     try :
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         userinfo = db.user.find_one({'id': payload['id']}, {'_id': 0})
@@ -269,7 +279,9 @@ def update_user():
         pw_hash = hashlib.sha256(pw.encode('utf-8')).hexdigest()
 
         if(user_pw == pw_hash):
-            db.user.update_one({'id':payload['id']},{'$set':{'nick': after }})
+            db.user.update_one({'id':payload['id']},{'$set':{'nickname': after }})
+            print(payload['id'])
+            print(after)
             return jsonify({'result' : "변경완료되었습니다."})
         else:
             return jsonify({'result' : "비밀번호 입력이 틀렸습니다."})
