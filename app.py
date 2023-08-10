@@ -29,7 +29,16 @@ from bs4 import BeautifulSoup
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        user_info = db.user.find_one({"id": payload['id']})
+        pw = hashlib.sha256(user_info['pw'].encode('utf-8')).hexdigest()
+        return render_template('index.html', nickname=user_info["nickname"], password=pw)
+    except jwt.ExpiredSignatureError:
+        return redirect(url_for("login", msg="로그인 시간이 만료되었습니다."))
+    except jwt.exceptions.DecodeError:
+        return redirect(url_for("login", msg="로그인 정보가 존재하지 않습니다."))
 
 @app.route("/main", methods=["POST"])
 def main_post():
@@ -40,7 +49,7 @@ def main_post():
     comment_receive = request.form['comment_give']
     region_receive = request.form['region_give']
     recommend_receive = request.form['recommend_give']
-    comment_receive = request.form['comment_give']
+
 
     headers = {'User-Agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
     data = requests.get(urlimage_receive,headers=headers)
@@ -141,6 +150,11 @@ def modify_use():
     return render_template('modify_user.html')
 
 
+@app.route("/search")
+def search_page():
+    return render_template("search.html")
+
+
 #################################
 ##  로그인을 위한 API            ##
 #################################
@@ -214,7 +228,7 @@ def api_valid():
         # 여기에선 그 예로 닉네임을 보내주겠습니다.
         userinfo = db.user.find_one({'id': payload['id']}, {'_id': 0})
         print(userinfo)
-        return jsonify({'result': 'success', 'nickname': userinfo['nick']})
+        return jsonify({'result': 'success', 'nickname': userinfo['nickname']})
     except jwt.ExpiredSignatureError:
         # 위를 실행했는데 만료시간이 지났으면 에러가 납니다.
         return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
@@ -291,6 +305,62 @@ def update_user():
         return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
     except jwt.exceptions.DecodeError:
         return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
+    
+
+# [게시물 등록 API]
+# 게시글을 등록하고, 토큰을 만들어 발급합니다.
+
+@app.route('/make', methods=['POST'])
+def food_save():
+    token_receive = request.cookies.get('mytoken')
+    food_receive = request.form['name']
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        food_list = list(db.restaurant.find({}, {'_id': False}))
+        count = len(food_list) + 1
+        doc = {
+            'id':payload['id'],
+            'num' :count,
+            'name' : food_receive,
+            'region' : int(request.form['region']),
+            'image' : request.form['image'],
+            'star' : int(request.form['star']), # 평균 내기 위해 숫자로
+            'recommend' : request.form['recommend'],
+            'comment' : request.form['comment'],
+        }
+        db.restaurant.insert_one(doc)
+        return jsonify({'result' : "저장완료"})
+    except jwt.ExpiredSignatureError:
+        # 위를 실행했는데 만료시간이 지났으면 에러가 납니다.
+        return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
+    except jwt.exceptions.DecodeError:
+        return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
+
+@app.route('/make')
+def save():
+    return render_template('post.html')
+
+
+# [게시물 검색 API]
+# 등록된 게시글을 검색합니다.
+
+@app.route('/search2/<keyword>', methods=["GET"])
+def food_search(keyword):
+    # keyword = request.form['keyword']
+    matching_foods = list(db.restaurant.find({'name': {'$regex': keyword}}))
+    print(keyword)
+    print(matching_foods)
+    # print(keyword)
+
+    if matching_foods:
+        restaurant = [{'name': food['name'], 'region': food['region'], 
+                       'recommend': food['recommend'], 'comment': food['comment']} 
+                       for food in matching_foods]
+    else:
+        restaurant = 0
+    
+    return jsonify({'result':restaurant})
+
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)

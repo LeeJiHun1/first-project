@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Webpage Title -->
+    <title>search!</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <!-- JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <script>
+        function search(){
+            let keyword = document.getElementById('findFood').value; // html에서 입력된 검색어 변수에 할당
+            // console.log(keyword)
+            fetch(`search2/${keyword}`).then(res => res.json()).then(data => {
+                let searchFood = data.result;                
+                let reg = {1:'서울', 2:'인천', 3:'경기', 4:'강원', 5:'충북', 6:'충남', 7:'대전',8:'전북',9:'전남',10:'광주',11:'경북', 12:'대구', 13:'부산', 14:'울산',  15:'경남', 16:'제주', 17:'울릉'}
+                // console.log(searchFood)
+                $('#search-list').empty()
+                if (searchFood === 0) {
+                    $('#search-list').html('<p>검색 할 수 없습니다.</p>')
+                } else {
+                    searchFood.forEach((a)=>{
+                    let name = a['name']
+                    let region = a['region']
+                    let comment = a['comment']
+                    console.log(reg[region])
+
+                    let temp_html = `<p>검색결과 : 이름: ${name}, 지역: ${reg[region]}, 코멘트: ${comment}, <a href="http://127.0.0.1:5000/"> 하이퍼링크 </a></p>`
+                    $('#search-list').append(temp_html)
+                    })
+                }                
+            })
+        }
+    </script>
+</head>
+<body>
+    <div class="section has-text-centered">
+        <h1 class="title">음식점 검색화면</h1>
+        <div class="container" style="width:60%">
+            <div class="field is-horizontal">
+                <div  class="field-label is-normal">
+                    <label  class="label" for="userpw">음식점 이름</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <input type="text" class="input" id="findFood" aria-describedby="emailHelp">
+                        </div>
+                    </div>                    
+                </div>
+                <button onclick="search()">검색</button>
+            </div>            
+        </div>
+    </div> 
+    <div id="search-list">
+          <h2>✅ 검색한 음식점</h2>
+      </div>   
+</body>
+</html>
