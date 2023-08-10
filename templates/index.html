@@ -139,11 +139,6 @@
 
         fetch('/main').then((res) => res.json()).then((data) => {
           let rows = data['result']
-          console.log(data['nickname'])
-          $('#idinfo').empty()
-          id = data['nickname']
-          let tem_html = `<a href="{{ url_for('modify_use')}}" id="idinfo">${id}님의 회원정보 수정하기</a>`
-          $('#idinfo').append(tem_html)
 
           $('#bab-box').empty()
 
@@ -206,32 +201,20 @@
       <div class="buttons">
         <button
           class="modify-btn"
-          href="{{ url_for('modify_use')}}"
           id="idinfo"
         >
-          {{nickname}} 회원정보 수정하기
+          <a href="{{ url_for('modify_use')}}" style="text-decoration: none;color: inherit">{{nickname}}님의 회원정보 수정하기</a>
         </button>
         <button class="logout-btn" onclick="logout()">로그아웃하기</button>
       </div>
       <div class="foodpost">
-        <button class="post-btn"><a href="{{url_for('save')}}">음식점 게시물 생성</a></button>
-        <button class="post-btn"><a href="{{url_for('search_page')}}">음식점 게시물 검색</a></button>
+        <button class="post-btn"><a href="{{url_for('save')}}" style="text-decoration: none;color: inherit">음식점 게시물 생성</a></button>
+        <button class="post-btn"><a href="{{url_for('search_page')}}" style="text-decoration: none;color: inherit">음식점 게시물 검색</a></button>
       </div>
     </div>
     <div class="mybab">
       <div class="row row-cols-1 row-cols-md-4 g-4" id="bab-box">
-        <div class="col">
-          <div class="card h-100">
-            <img
-              src="https://www.fsnews.co.kr/news/photo/202207/46076_38598_3042.jpg"
-              class="card-img-top"
-            />
-            <div class="card-body">
-              <h5 class="bab-title">식당이름</h5>
-              <p>총점</p>
-            </div>
-          </div>
-        </div>
+        
       </div>
     </div>
   </body>

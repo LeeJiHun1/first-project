@@ -15,11 +15,11 @@
     <script>
         function search(){
             let keyword = document.getElementById('findFood').value; // html에서 입력된 검색어 변수에 할당
-            // console.log(keyword)
+            
             fetch(`search2/${keyword}`).then(res => res.json()).then(data => {
                 let searchFood = data.result;                
                 let reg = {1:'서울', 2:'인천', 3:'경기', 4:'강원', 5:'충북', 6:'충남', 7:'대전',8:'전북',9:'전남',10:'광주',11:'경북', 12:'대구', 13:'부산', 14:'울산',  15:'경남', 16:'제주', 17:'울릉'}
-                // console.log(searchFood)
+                
                 $('#search-list').empty()
                 if (searchFood === 0) {
                     $('#search-list').html('<p>검색 할 수 없습니다.</p>')
@@ -28,12 +28,14 @@
                     let name = a['name']
                     let region = a['region']
                     let comment = a['comment']
+                    let id = a['num']
                     console.log(reg[region])
-
-                    let temp_html = `<p>검색결과 : 이름: ${name}, 지역: ${reg[region]}, 코멘트: ${comment}, <a href="http://127.0.0.1:5000/"> 하이퍼링크 </a></p>`
+                    let url = {{ url_for('detail', rest_id = id)}} + id
+                    console.log(url)
+                    let temp_html = ` <p>검색결과  <a href=${url}> 이름: ${name}, 지역: ${reg[region]}, 코멘트: ${comment}</a> </p>`
                     $('#search-list').append(temp_html)
                     })
-                }                
+                }               
             })
         }
     </script>

@@ -230,22 +230,38 @@
               let star_repeat = '⭐'.repeat(star)
               let url = '{{ url_for('modify', num=num )}}'
               switch (region) {
-                  case 1: region_name = '서울'
+                  case 1: region_name = '서울' 
+                  break
                   case 2: region_name = '인천'
+                  break
                   case 3: region_name = '경기'
+                  break
                   case 4: region_name = '강원'
+                  break
                   case 5: region_name = '충북'
+                  break
                   case 6: region_name = '충남'
+                  break
                   case 7: region_name = '대전'
+                  break
                   case 8: region_name = '전북'
+                  break
                   case 9: region_name = '전남'
+                  break
                   case 10: region_name = '광주'
+                  break
                   case 11: region_name = '경북'
+                  break
                   case 12: region_name = '대구'
+                  break
                   case 13: region_name = '부산'
+                  break
                   case 14: region_name = '울산'
+                  break
                   case 15: region_name = '경남'
+                  break
                   case 16: region_name = '제주'
+                  break
                   case 17: region_name = '울릉'
               }
 
@@ -345,7 +361,6 @@
               let mentinfo = data['mentinfo'];
               $('#comment-list').empty();
               mentinfo.forEach((a) => {
-                console.log(a)
                   let star = a['star'];
                   let comment = a['comment'];
                   let nickname = a['nickname'];
@@ -379,7 +394,7 @@
       <a href="{{url_for('home')}}"
         ><image class="gomain"
           src="https://th.bing.com/th/id/OIP.xYpiAelaRfBjTfERszwQPQHaHa?pid=ImgDet&rs=1"
-        ></image
+          href="{{url_for('home')}}"></image
       ></a>
     </div>
       <div class="review-container" id="restaurant-detail"></div>

@@ -45,10 +45,6 @@ def main_post():
     urlimage_receive = request.form['url_give']
     name_receive = request.form['name_give']
     star_receive = request.form['star_give']
-    num_receive = request.form['num_give']
-    comment_receive = request.form['comment_give']
-    region_receive = request.form['region_give']
-    recommend_receive = request.form['recommend_give']
 
 
     headers = {'User-Agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
@@ -264,9 +260,9 @@ def food_modify(num):
     #Num = request.form['num']
     db.restaurant.update_one({'num' : int(Num)}, {'$set':
         {'name' : request.form['name'], 
-        'region' : request.form['region'],
+        'region' : int(request.form['region']),
         'image' : request.form['image'],
-        'star' : request.form['star'],
+        'star' : int(request.form['star']),
         'recommend' : request.form['recommend'],
         'comment' : request.form['comment'],}})
     return jsonify({'result' : "수정 완료"})
@@ -354,7 +350,7 @@ def food_search(keyword):
 
     if matching_foods:
         restaurant = [{'name': food['name'], 'region': food['region'], 
-                       'recommend': food['recommend'], 'comment': food['comment']} 
+                       'recommend': food['recommend'], 'comment': food['comment'], 'num':food['num']} 
                        for food in matching_foods]
     else:
         restaurant = 0

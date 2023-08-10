@@ -44,20 +44,17 @@
                 formData.append('star', star);
                 formData.append('recommend', recommend);
                 formData.append('comment', comment);
-                fetch('/update', {method: "POST",body: formData,}).then((response) => response.json()).then((data) => {
+                fetch(`/modify/${num}`, {method: "POST",body: formData,}).then((response) => response.json()).then((data) => {
                         alert(data["result"]);
-                        window.location.reload();
+                        window.location.replace("{{ url_for('home') }}");
                  });
             }
             function show_rest(){
-                console.log("hello")
                 fetch('/init').then(res => res.json()).then(data => {
                     let rows = data['result']
-                    console.log(num)
                     rows.forEach((a)=>{
                         let number = a['num']
                         if (number == num){
-                            console.log(a)
                             name = a['name']
                             region = a['region']
                             image = a['image']
@@ -65,7 +62,6 @@
                             recommend = a['recommend']
                             comment = a['comment']
                             temp_html = ``
-                            console.log("first")
                             temp_html = `
                                                 <div class="field is-horizontal">
                                         <div class="field-label is-normal">
