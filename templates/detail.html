@@ -75,6 +75,7 @@
 
                 let tot_star = star
                 let cnt = 1
+                console.log(tot_star, cnt)
                 let star_repeat = '⭐'.repeat(star)
                 switch (region) {
                     case 1: region_name = '서울'
@@ -181,8 +182,10 @@
                     let star = a['star'];
                     let comment = a['comment'];
                     let nickname = a['nickname'];
+                    console.log(star)
                     tot_star += star
                     cnt++
+                    console.log(tot_star, cnt)
                     let star_repeat = '⭐'.repeat(star)
                     let temp_html = `<div class="field is-horizontal">
                                         <div class="field-label is-normal">

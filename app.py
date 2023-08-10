@@ -59,9 +59,7 @@ def main_post():
 
 @app.route("/main", methods=["GET"])
 def main_get():
-
     all_restaurant = list(db.restaurant.find({},{'_id':False}))
-
     for i in range(len(all_restaurant)):
         total_star = 0
         count = 0
@@ -72,7 +70,7 @@ def main_get():
         count+= 1
         
         for j in range(len(all_comment)):
-            total_star = total_star + all_comment[j]['star']
+            total_star = total_star + int(all_comment[j]['star'])
             count+= 1
         all_restaurant[i]['total_star'] = round(total_star/count,1)
         
@@ -113,7 +111,7 @@ def comment_post():
     
     doc = {
             'comment' : comment_receive,
-            'star' : star_receive,
+            'star' : int(star_receive),
             'id' : userId,
             'num' : int(num_receive)
         }
