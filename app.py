@@ -35,12 +35,12 @@ def home():
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         user_info = db.user.find_one({"id": payload['id']})
         pw = hashlib.sha256(user_info['pw'].encode('utf-8')).hexdigest()
-        return render_template('index.html', nickname=user_info["nick"], password=pw)
+        return render_template('index.html', nickname=user_info["nick"])
     except jwt.ExpiredSignatureError:
         return redirect(url_for("login", msg="로그인 시간이 만료되었습니다."))
     except jwt.exceptions.DecodeError:
         return redirect(url_for("login", msg="로그인 정보가 존재하지 않습니다."))
-
+    
 @app.route('/login')
 def login():
     msg = request.args.get("msg")
@@ -51,6 +51,13 @@ def login():
 def register():
     return render_template('register.html')
 
+@app.route('/modify')
+def modify():      
+    return render_template('modify.html')
+
+@app.route('/modify/<Num>')
+def firstmodify(Num):
+    return redirect(url_for('modify', num = Num))
 
 #################################
 ##  로그인을 위한 API            ##
@@ -64,6 +71,11 @@ def api_register():
     id_receive = request.form['id_give']
     pw_receive = request.form['pw_give']
     nickname_receive = request.form['nickname_give']
+    pw_check = request.form['pw_check']
+    print(request.form)
+    if pw_check != pw_receive:
+       return jsonify({'result': 'fail'})
+    
 
     pw_hash = hashlib.sha256(pw_receive.encode('utf-8')).hexdigest()
 
@@ -81,10 +93,8 @@ def api_login():
 
     # 회원가입 때와 같은 방법으로 pw를 암호화합니다.
     pw_hash = hashlib.sha256(pw_receive.encode('utf-8')).hexdigest()
-
     # id, 암호화된pw을 가지고 해당 유저를 찾습니다.
     result = db.user.find_one({'id': id_receive, 'pw': pw_hash})
-
     # 찾으면 JWT 토큰을 만들어 발급합니다.
     if result is not None:
         # JWT 토큰에는, payload와 시크릿키가 필요합니다.
@@ -122,12 +132,34 @@ def api_valid():
         # payload 안에 id가 들어있습니다. 이 id로 유저정보를 찾습니다.
         # 여기에선 그 예로 닉네임을 보내주겠습니다.
         userinfo = db.user.find_one({'id': payload['id']}, {'_id': 0})
+        print(userinfo)
         return jsonify({'result': 'success', 'nickname': userinfo['nick']})
     except jwt.ExpiredSignatureError:
         # 위를 실행했는데 만료시간이 지났으면 에러가 납니다.
         return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
     except jwt.exceptions.DecodeError:
         return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
+
+
+@app.route('/update', methods=['POST'])
+def food_modify():
+    Num = request.form['num']
+    db.foods.update_one({'num' : int(Num)}, {'$set':
+        {'name' : request.form['name'], 
+        'region' : request.form['region'],
+        'image' : request.form['image'],
+        'star' : request.form['star'],
+        'recommend' : request.form['recommend'],
+        'comment' : request.form['comment'],}})
+    return jsonify({'result' : "수정 완료"})
+
+
+@app.route('/init', methods=['GET'])
+def restaurant_get():
+    all_restaurant = list(db.foods.find({},{'_id':False}))
+    print("hello")
+    return jsonify({'result' : all_restaurant})
+
 
 
 if __name__ == '__main__':
