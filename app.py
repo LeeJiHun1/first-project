@@ -85,12 +85,6 @@ def comment_post():
     return jsonify({'result': 'success', 'msg': '맛있다!'})
 
 
-@app.route('/api/comment', methods=["GET"])
-def comment_get():
-    all_comment = list(db.comment.find({}, {'_id': False}))
-    return jsonify({'result':all_comment})
-
-
 #################################
 ##  로그인을 위한 API            ##
 #################################
