@@ -77,6 +77,8 @@
                 let cnt = 1
                 console.log(tot_star, cnt)
                 let star_repeat = '⭐'.repeat(star)
+                let url = '{{ url_for('modify', num=num )}}'
+
                 switch (region) {
                     case 1: region_name = '서울'
                     case 2: region_name = '인천'
@@ -96,7 +98,7 @@
                     case 16: region_name = '제주'
                     case 17: region_name = '울릉'
                 }
-
+                
                 $('#restaurant-detail').empty();
                 let temp_html = `<div class="field is-horizontal">
                                     <p id="num" style="display:none">${num}</p>
@@ -173,7 +175,10 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>`
+                                </div>
+                                <a href="${url}${num}">수정하기</a>
+                                
+                                `
                 $('#restaurant-detail').append(temp_html);
 
                 let mentinfo = data['mentinfo'];
@@ -311,7 +316,7 @@
         </div>
         <hr>
         <div class="container" style="width:70%" id="comment-list">
-
+                
         </div>
     </div>
     <div class="mypost">

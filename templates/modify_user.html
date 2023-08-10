@@ -1,0 +1,75 @@
+<!doctype html>
+
+<html lang="en">
+    <head>
+
+        <!-- Webpage Title -->
+        <title>Hello, world!</title>
+
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bulma CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+        <!-- JS -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+
+        <script>
+            
+            $(document).ready(function (){
+            })
+            function modify(){
+                let formData = new FormData();
+
+                let pw = $('#PW').val()
+                let nickname = $('#nickname').val()
+                
+
+                formData.append('pw', pw)
+                formData.append('after', nickname);
+                console.log("hello")
+                fetch('/update_user', {method: "POST",body: formData,}).then((response) => response.json()).then((data) => {
+                        alert(data["result"]);
+                        console.log("HELLO")
+
+                        window.location.replace("{{ url_for('home') }}");
+                 });
+            }
+            
+        </script>
+    </head>
+    <body>
+        <div class="section has-text-centered">
+            <h1 class="title">회원 정보 수정 페이지</h1>
+            <div class="container" style="width:60%" id="main">
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label" for="userid">현재 비밀번호</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <input type="text" class="input" id="PW" placeholder="확인하기 위한 현재 비밀번호를 입력해주세요">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label" for="userpw">변경 닉네임</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <input type="text" class="input" id="nickname" placeholder="바꾸고 싶은 닉네임으로 입력해주세요">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="button is-primary" onclick="modify()">수정하기</button>
+        </div>
+    </body>
+</html>
