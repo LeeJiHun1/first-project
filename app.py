@@ -52,6 +52,11 @@ def register():
     return render_template('register.html')
 
 
+@app.route("/search")
+def search_page():
+    return render_template("search.html")
+
+
 #################################
 ##  로그인을 위한 API            ##
 #################################
@@ -128,6 +133,22 @@ def api_valid():
         return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
     except jwt.exceptions.DecodeError:
         return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
+
+
+# [게시물 검색 API]
+# 등록된 게시글을 검색합니다.
+
+@app.route("/make/search", methods=["GET"])
+def food_search():
+    keyword = request.args['keyword']
+    matching_foods = list(db.foods.find({'name': {'$regex': keyword}}))
+
+    if matching_foods:
+        restaurant = [{'name': food['name'], 'region': food['region'], 'recommend': food['recommend'], 'comment': food['comment']} for food in matching_foods]
+    else:
+        restaurant = 0
+    
+    return jsonify({'result':restaurant})
 
 
 if __name__ == '__main__':
