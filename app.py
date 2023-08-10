@@ -149,7 +149,7 @@ def api_valid():
 @app.route('/update', methods=['POST'])
 def food_modify():
     Num = request.form['num']
-    db.foods.update_one({'num' : int(Num)}, {'$set':
+    db.restaurant.update_one({'num' : int(Num)}, {'$set':
         {'name' : request.form['name'], 
         'region' : request.form['region'],
         'image' : request.form['image'],
@@ -161,7 +161,7 @@ def food_modify():
 
 @app.route('/init', methods=['GET'])
 def restaurant_get():
-    all_restaurant = list(db.foods.find({},{'_id':False}))
+    all_restaurant = list(db.restaurant.find({},{'_id':False}))
     print("hello")
     return jsonify({'result' : all_restaurant})
 
@@ -190,7 +190,6 @@ def update_user():
         return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
     except jwt.exceptions.DecodeError:
         return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
-    return jsonify({'result':"hello" })
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)
