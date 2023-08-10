@@ -64,6 +64,7 @@
         function show_restaurant() {
             fetch(`/api/detail/{{rest_id}}`).then((res) => res.json()).then((data) => {
                 let rows = data['result'];
+                let id = data['restinfo']['id']
 
                 let num = data['restinfo']['num'];
                 let name = data['restinfo']['name'];
@@ -78,7 +79,7 @@
                 console.log(tot_star, cnt)
                 let star_repeat = '⭐'.repeat(star)
                 let url = '{{ url_for('modify', num=num )}}'
-
+                console.log(id)
                 switch (region) {
                     case 1: region_name = '서울'
                     case 2: region_name = '인천'
@@ -176,11 +177,16 @@
                                         </div>
                                     </div>
                                 </div>
-                                <a href="${url}${num}">수정하기</a>
-                                
                                 `
+                
+                
                 $('#restaurant-detail').append(temp_html);
 
+                if(data['userinfo'] == id){
+                    temp2_html = `<a href="${url}${num}">수정하기</a>`
+                    $('#restaurant-detail').append(temp2_html);
+
+                }
                 let mentinfo = data['mentinfo'];
                 $('#comment-list').empty();
                 mentinfo.forEach((a) => {

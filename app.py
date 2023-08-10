@@ -214,13 +214,24 @@ def api_valid():
 @app.route('/api/detail/<restid>', methods=['GET'])
 def api_detail(restid):
     id_receive = restid
-
-    restinfo = db.restaurant.find_one({'num':int(id_receive)}, {'_id':0})
-    mentinfo = list(db.comment.find({'num':int(id_receive)}, {'_id':0}))
-    for i in range(len(mentinfo)) :
-        nickname = db.user.find_one({'id':mentinfo[i]["id"]}, {'_id':0})["nickname"]
-        mentinfo[i]["nickname"] = nickname
-    return jsonify({'result': 'success', 'restinfo':restinfo, 'mentinfo':mentinfo})
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        userinfo = db.user.find_one({'id': payload['id']}, {'_id': 0})
+        restinfo = db.restaurant.find_one({'num':int(id_receive)}, {'_id':0})
+        print(restinfo)
+        mentinfo = list(db.comment.find({'num':int(id_receive)}, {'_id':0}))
+        userid = userinfo['id']
+        for i in range(len(mentinfo)) :
+            nickname = db.user.find_one({'id':mentinfo[i]["id"]}, {'_id':0})["nickname"]
+            mentinfo[i]["nickname"] = nickname
+        return jsonify({'result': 'success', 'restinfo':restinfo, 'mentinfo':mentinfo, 'userinfo':userid})
+    
+    except jwt.ExpiredSignatureError:
+        # 위를 실행했는데 만료시간이 지났으면 에러가 납니다.
+        return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
+    except jwt.exceptions.DecodeError:
+        return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
 
 
 @app.route('/modify/<num>', methods=['POST'])
