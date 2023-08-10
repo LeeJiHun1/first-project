@@ -7,8 +7,10 @@ import certifi
 
 ca=certifi.where()
 
-client = MongoClient("mongodb+srv://sparta:test@cluster0.mcd1ews.mongodb.net/?retryWrites=true&w=majority", tlsCAFile=ca)
-db = client.dbsparta_plus_week4
+# client = MongoClient("mongodb+srv://sparta:test@cluster0.mcd1ews.mongodb.net/?retryWrites=true&w=majority", tlsCAFile=ca)
+# db = client.dbsparta_plus_week4
+client = MongoClient("mongodb+srv://sparta:test@cluster0.vfkdbnv.mongodb.net/?retryWrites=true&w=majority", tlsCAFile=ca)
+db = client.sparta
 
 # JWT 토큰을 만들 때 필요한 비밀문자열입니다. 아무거나 입력해도 괜찮습니다.
 # 이 문자열은 서버만 알고있기 때문에, 내 서버에서만 토큰을 인코딩(=만들기)/디코딩(=풀기) 할 수 있습니다.
@@ -51,6 +53,9 @@ def login():
 def register():
     return render_template('register.html')
 
+@app.route('/detail/<rest_id>')
+def detail(rest_id):
+    return render_template('detail.html', rest_id=rest_id)
 
 #################################
 ##  로그인을 위한 API            ##
@@ -128,6 +133,17 @@ def api_valid():
         return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
     except jwt.exceptions.DecodeError:
         return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
+    
+@app.route('/api/detail/<restid>', methods=['GET'])
+def api_detail(restid):
+    id_receive = restid
+
+    restinfo = db.restaurant.find_one({'num':int(id_receive)}, {'_id':0})
+    mentinfo = list(db.comment.find({'num':int(id_receive)}, {'_id':0}))
+    for i in range(len(mentinfo)) :
+        nickname = db.user.find_one({'id':mentinfo[i]["id"]}, {'_id':0})["nickname"]
+        mentinfo[i]["nickname"] = nickname
+    return jsonify({'result': 'success', 'restinfo':restinfo, 'mentinfo':mentinfo})
 
 
 if __name__ == '__main__':

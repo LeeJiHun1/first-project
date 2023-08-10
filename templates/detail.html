@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Webpage Title -->
+    <title>상세 페이지</title>
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <!-- JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            show_restaurant();
+            // console.log({{rest_id}})
+        });
+        function show_restaurant() {
+            // let id = {{rest_id}}
+            fetch(`/api/detail/{{rest_id}}`).then((res) => res.json()).then((data) => {
+                let rows = data['result'];
+
+                var name = data['restinfo']['name'];
+                let region = data['restinfo']['region'];
+                let image = data['restinfo']['image'];
+                let star = data['restinfo']['star'];
+                let recommend = data['restinfo']['recommend'];
+                let comment = data['restinfo']['comment'];
+
+                let tot_star = star
+                let cnt = 1
+                let star_repeat = '⭐'.repeat(star)
+                switch (region) {
+                    case 1: region_name = '서울'
+                    case 2: region_name = '대구'
+                }
+
+                $('#restaurant-detail').empty();
+                let temp_html = `<div class="field is-horizontal">
+                                    <img src="${image}" alt="">
+                                </div>
+                                <div class="field is-horizontal">
+                                    <div class="field-label is-normal">
+                                        <label class="label" for="region">음식점 지역</label>
+                                    </div>
+                                    <div class="field-body">
+                                        <div class="field">
+                                            <div class="control">
+                                                <p id="region">${region_name}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field is-horizontal">
+                                    <div class="field-label is-normal">
+                                        <label class="label" for="name">음식점 이름</label>
+                                    </div>
+                                    <div class="field-body">
+                                        <div class="field">
+                                            <div class="control">
+                                                <p id="name">${name}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field is-horizontal">
+                                    <div class="field-label is-normal">
+                                        <label class="label" for="star">음식점 별점</label>
+                                    </div>
+                                    <div class="field-body">
+                                        <div class="field">
+                                            <div class="control">
+                                                <p id="star">${star_repeat}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field is-horizontal">
+                                    <div class="field-label is-normal">
+                                        <label class="label" for="star">음식점 총별점</label>
+                                    </div>
+                                    <div class="field-body">
+                                        <div class="field">
+                                            <div class="control">
+                                                <p id="tot_star">${tot_star}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field is-horizontal">
+                                    <div class="field-label is-normal">
+                                        <label class="label" for="recommend">음식점 추천 메뉴</label>
+                                    </div>
+                                    <div class="field-body">
+                                        <div class="field">
+                                            <div class="control">
+                                                <p id="recommend">${recommend}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field is-horizontal">
+                                    <div class="field-label is-normal">
+                                        <label class="label" for="comment">코멘트</label>
+                                    </div>
+                                    <div class="field-body">
+                                        <div class="field">
+                                            <div class="control">
+                                                <p id="comment">${comment}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>`
+                    $('#restaurant-detail').append(temp_html);
+
+                let mentinfo = data['mentinfo'];
+                $('#comment-list').empty();
+                mentinfo.forEach((a) => {
+                    let star = a['star'];
+                    let comment = a['comment'];
+                    let nickname = a['nickname'];
+                    tot_star += star
+                    cnt++
+                    let star_repeat = '⭐'.repeat(star)
+                    let temp_html = `<div class="field is-horizontal">
+                                        <div class="field-label is-normal">
+                                            <label class="label" for="region">닉네임</label>
+                                        </div>
+                                        <div class="field-body">
+                                            <div class="field">
+                                                <div class="control">
+                                                    <p id="region">${nickname}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field is-horizontal">
+                                        <div class="field-label is-normal">
+                                            <label class="label" for="region">댓글</label>
+                                        </div>
+                                        <div class="field-body">
+                                            <div class="field">
+                                                <div class="control">
+                                                    <p id="region">${comment}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field is-horizontal">
+                                        <div class="field-label is-normal">
+                                            <label class="label" for="region">별점</label>
+                                        </div>
+                                        <div class="field-body">
+                                            <div class="field">
+                                                <div class="control">
+                                                    <p id="region">${star_repeat}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>`
+                    $('#comment-list').append(temp_html);
+                });
+                $('#tot_star').text(tot_star/cnt*100/100)
+            })
+        }
+
+    </script>
+
+</head>
+
+<body>
+    <div class="section has-text-centered">
+        <h1 class="title">상세 페이지</h1>
+        <div class="container" style="width:70%" id="restaurant-detail">
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label" for="image">음식점 사진 URL</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <p id="image">11123</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label" for="region">음식점 지역</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <p id="region">서울</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label" for="name">음식점 이름</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <p id="name">음식점 이름</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label" for="star">음식점 별점</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <p id="star">4</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label" for="recommend">음식점 추천 메뉴</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <p id="recommend">참치 김밥</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label" for="comment">코멘트</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <p id="comment">이집을 말하자면.....</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="container" style="width:70%" id="comment-list">
+            
+        </div>
+    </div>
+</body>
+
+</html>
