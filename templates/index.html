@@ -26,8 +26,6 @@
 
 <body>
   
-  <
-  
 </body>
 
 </html>
@@ -110,7 +108,6 @@
           let total_star = a['total_star']
 
           let url = {{ url_for('detail', rest_id=id )}}
-          console.log(url)
           let temp_html = `<div class="col">
                               <div class="card h-100">
                                 <a href="${url}${id}">
@@ -125,7 +122,6 @@
                             
           $('#bab-box').append(temp_html)
         })
-
       })
     }
     // 로그아웃은 내가 가지고 있는 토큰만 쿠키에서 없애면 됩니다.
