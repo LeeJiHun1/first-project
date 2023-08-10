@@ -317,7 +317,8 @@
                                     <hr>`
                     $('#comment-list').append(temp_html);
                 });
-                $('#tot_star').text(tot_star / cnt * 100 / 100)
+                let totol = new Number(tot_star/cnt)
+                $('#tot_star').text(totol.toFixed(1))
             })
         }
     </script>
