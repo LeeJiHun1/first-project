@@ -34,7 +34,7 @@ def home():
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         user_info = db.user.find_one({"id": payload['id']})
         pw = hashlib.sha256(user_info['pw'].encode('utf-8')).hexdigest()
-        return render_template('index.html', nickname=user_info["nick"], password=pw)
+        return render_template('index.html', nickname=user_info["nickname"], password=pw)
     except jwt.ExpiredSignatureError:
         return redirect(url_for("login", msg="로그인 시간이 만료되었습니다."))
     except jwt.exceptions.DecodeError:
@@ -228,7 +228,7 @@ def api_valid():
         # 여기에선 그 예로 닉네임을 보내주겠습니다.
         userinfo = db.user.find_one({'id': payload['id']}, {'_id': 0})
         print(userinfo)
-        return jsonify({'result': 'success', 'nickname': userinfo['nick']})
+        return jsonify({'result': 'success', 'nickname': userinfo['nickname']})
     except jwt.ExpiredSignatureError:
         # 위를 실행했는데 만료시간이 지났으면 에러가 납니다.
         return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
@@ -262,8 +262,7 @@ def api_detail(restid):
 def food_modify(num):
     Num = num
     #Num = request.form['num']
-    db.restaurant.update_one({'num' : int(Num)}, {'$set':
-        {'name' : request.form['name'], 
+    db.restaurant.update_one({'num' : int(Num)}, {'$set':{'name' : request.form['name'], 
         'region' : request.form['region'],
         'image' : request.form['image'],
         'star' : request.form['star'],
