@@ -29,11 +29,9 @@
 
                 formData.append('pw', pw)
                 formData.append('after', nickname);
-                console.log("hello")
+                
                 fetch('/update_user', {method: "POST",body: formData,}).then((response) => response.json()).then((data) => {
                         alert(data["result"]);
-                        console.log("HELLO")
-
                         window.location.replace("{{ url_for('home') }}");
                  });
             }
