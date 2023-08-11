@@ -27,7 +27,7 @@
                 formData.append('recommend', recommend);
                 formData.append('comment', comment);
                 fetch('/make', {method: "POST",body: formData,}).then((response) => response.json()).then((data) => {
-                        alert(data["msg"]);
+                        alert(data["result"]);
                         window.location.replace("{{ url_for('home') }}");
                  });
             }
